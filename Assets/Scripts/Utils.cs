@@ -7,24 +7,32 @@ public class Timer
 
     float startTime;
     float duration;
-    public Timer(float duration)
-    {
+    public Timer(float duration){
         startTime = Time.time;
         this.duration = duration;
     }
 
-    public Timer(float startTime , float duration)
-    {
+    public Timer(float startTime , float duration){
         this.startTime = startTime;
         this.duration = duration;
     }
 
     public bool IsFinished() => startTime + duration <= Time.time;
 
-    public float GetRemainingSecs()
-    {
+    public float GetRemainingSecs(){
         float rSecs = startTime + duration - Time.time;
         return (rSecs < 0f) ? 0f : rSecs;
+    }
+
+    public void Reset(){
+        startTime = Time.time;
+    }
+
+    public void Forward(int seconds)
+    {
+        if (seconds <= 0)
+            return;
+        startTime -= seconds;
     }
 
 

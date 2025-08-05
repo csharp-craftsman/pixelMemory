@@ -16,7 +16,7 @@ public class CardMachine : MonoBehaviour
 {
 
 
-    Animator animator;
+    public Animator animator;
     public Button clickable;
     public CardMode current;
 
@@ -29,12 +29,12 @@ public class CardMachine : MonoBehaviour
     }
 
 
-    void close()
+    public virtual void Close()
     {
         animator.Play("CloseIdle");
     }
 
-    void open()
+    public virtual void Open()
     {
         animator.Play("OpenIdle");
     }
@@ -44,7 +44,7 @@ public class CardMachine : MonoBehaviour
     {
         if(current == CardMode.IDLE && next == CardMode.SELECTED)
         {
-            open();
+            Open();
             current = CardMode.SELECTED;
         }
         else if (current == CardMode.SELECTED && next == CardMode.IDLE)
@@ -65,14 +65,14 @@ public class CardMachine : MonoBehaviour
 
     IEnumerator closeRoutine()
     {
+        yield return new WaitForSeconds(0.5f);
         current = CardMode.IDLE;
-        yield return new WaitForSeconds(1f);
-        close();
+        Close();
     }
 
     IEnumerator matchRoutine()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         current = CardMode.MATCHED;
         this.gameObject.SetActive(false);
     }

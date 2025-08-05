@@ -57,12 +57,12 @@ public class CardDeck
     public bool IsInactive = false;
     
 
-    public CardDeck(int cardAmount)
+    public CardDeck(List<CardMachine> cards)
     {
 
-        this.cardAmount = cardAmount;
+        this.cardAmount = cards.Count;
         Transform deckParent = findDeckParent();
-        initializeDeckWithPrefab(deckParent);
+        initializeDeckWithPrefab(deckParent , cards);
         selector = new CardSelection();
         selector.MaxSelected = 2;
         initializeListener();
@@ -100,12 +100,13 @@ public class CardDeck
     }
 
 
-    void initializeDeckWithPrefab(Transform deckParent)
+    void initializeDeckWithPrefab(Transform deckParent , List<CardMachine> prefabs)
     {
-        CardMachine cardSM = Resources.Load<CardMachine>("Prefabs/CardButton");
         deck = new CardMachine[cardAmount];
+        if (deck.Length != prefabs.Count)
+            throw new System.Exception("Deck and prefabs must be same size.");
         for (int i = 0; i < cardAmount; i++)
-            deck[i] = Object.Instantiate<CardMachine>(cardSM, deckParent);
+            deck[i] = Object.Instantiate<CardMachine>(prefabs[i], deckParent);
     }
 
 
@@ -164,14 +165,13 @@ public class PlayController : MonoBehaviour
     CardDeck deck;
 
     [SerializeField] private GameObject CardParent;
-    [SerializeField] private int PreviewDuration;
-    [SerializeField] private int LosingDuration;
-    public int CardCount;
-
+    [SerializeField] private LevelScriptable LevelData;
 
     private PlayMenu menu;
     private Timer GOTimer;
     private Timer PreviewTimer;
+    private int PreviewDuration;
+    private int LosingDuration;
 
 
 
@@ -179,8 +179,17 @@ public class PlayController : MonoBehaviour
     void Start()
     {
 
-        deck = new CardDeck(CardCount);
         menu = GameObject.Find("PlayMenu").GetComponent<PlayMenu>();
+        initializeLevelData();
+
+    }
+
+    void initializeLevelData()
+    {
+        PreviewDuration = LevelData.PreviewDuration;
+        LosingDuration = LevelData.GameOverDuration;
+        deck = new CardDeck(LevelData.cards);
+
 
     }
 
@@ -199,7 +208,7 @@ public class PlayController : MonoBehaviour
         if (PreviewTimer.IsFinished() && GOTimer == null)
         {
             deck.IsInactive = false;
-            GOTimer = new Timer(LosingDuration , Time.time + 1f);
+            GOTimer = new Timer(LosingDuration);
             deck.SwitchAll(CardMode.IDLE);
             menu.DisablePreviewDurationText();
             menu.EnableLosingDurationText();

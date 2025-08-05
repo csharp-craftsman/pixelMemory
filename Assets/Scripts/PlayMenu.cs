@@ -8,6 +8,7 @@ public class PlayMenu : MonoBehaviour
 
     Canvas winCanvas;
     Canvas loseCanvas;
+    bool isPlayerWon;
 
     int LosingDurationTextValue;
     int PreviewDurationTextValue;
@@ -26,8 +27,10 @@ public class PlayMenu : MonoBehaviour
 
     public void PlayerWon()
     {
-        if(!loseCanvas.enabled)
+        isPlayerWon = !loseCanvas.enabled;
+        if (isPlayerWon)
             winCanvas.enabled = true;
+
     }
 
     public void PlayerLost()
@@ -38,7 +41,11 @@ public class PlayMenu : MonoBehaviour
 
     public void GoToLevelSelection()
     {
+        if (isPlayerWon)
+            GameManager.Instance.SaveIfNextLevelWon();
+        
         GameManager.Instance.SLoader.LoadLevelSelectionScene();
+
     }
 
     public void UpdateLosingDuration(float remainingSecs)
