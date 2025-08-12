@@ -81,15 +81,47 @@ public class AudioSystem
 }
 
 
+public class Heart
+{
+    public int value;
+    public int maxHeart;
+    public const int minHeart = 0;
 
+    public Heart(int maxHeart) { 
+    
+        this.maxHeart = maxHeart;
+    
+    
+    }
+
+
+    public void Increase(int amount) { 
+        int total = value + amount;
+        value = (total > maxHeart) ? maxHeart : total;
+    }
+
+    public void Decrease(int amount)
+    {
+        int total = value - amount;
+        value = (total < minHeart) ? minHeart : total;
+    }
+
+    public void Print(Timer regenTimer)
+    {
+        Debug.Log($"You have {value} hearts. Next heart is going to be regenerated after {regenTimer.GetRemainingSecs()} seconds");
+    }
+
+
+
+}
 
 
 
 
 public class HeartSystem
 {
-    int heart = 3;
-    int maxHeart = 3;
+
+    public Heart heart;
     Timer regenTimer;
     int tickPeriod = 0;
 
@@ -97,8 +129,7 @@ public class HeartSystem
     public HeartSystem(int tickPeriod) {
 
 
-        heart = -4;
-        maxHeart = 3;
+        this.heart = new Heart(3);
         this.tickPeriod = tickPeriod;
     
     }
@@ -106,12 +137,12 @@ public class HeartSystem
 
     public void Regenerate()
     {
-        if (regenTimer == null)
+        if (regenTimer == null || heart == null)
             return;
 
         if (regenTimer.IsFinished())
         {
-            heart++;
+            heart.Increase(1);
             regenTimer.Reset();
         }
 
@@ -119,31 +150,41 @@ public class HeartSystem
     }
 
 
-    public int CalculateOfflineHeart(DateTime lastHeartChangeTime) { 
-    
-        TimeSpan offset = DateTime.Now - lastHeartChangeTime;
-        int extra = (int)(offset.TotalSeconds / tickPeriod);
-        return (extra < 0) ? 0 : (extra > maxHeart) ? maxHeart : extra;
-    
+    public void LoadHeart(GameData data)
+    {
+        heart.value = data.lastHearthCount;
+        (int heartC , int secC) = ConvertTimeToHeart(data.hearthChangeTime);
+        heart.Increase(heartC);
+
+        bool isLoaded = (regenTimer != null);
+        if (!isLoaded)
+        {
+            regenTimer = new Timer(tickPeriod);
+            regenTimer.Forward(secC);
+        }
+
+        heart.Print(regenTimer);
+
+
     }
 
-    public int CalculateOfflineDuration(DateTime lastHeartChangeTime) {
-
-        TimeSpan offset = DateTime.Now - lastHeartChangeTime;
-        int extra = (int)(offset.TotalSeconds % tickPeriod);
-        return (extra < 0) ? 0 : extra ;
+    (int,int) ConvertTimeToHeart(DateTime changeTime)
+    {
+        TimeSpan offset = (DateTime.Now - changeTime);
+        if (offset.TotalDays > 1)
+            return (heart.maxHeart, tickPeriod);
+        return ((int)offset.TotalSeconds / tickPeriod, (int) offset.TotalSeconds % tickPeriod);
 
     }
 
 
-    public void Initialize(GameData data){
-        int extraHeart = CalculateOfflineHeart(data.hearthChangeTime);
-        int extraDur = CalculateOfflineDuration(data.hearthChangeTime);
-        int lastCount = data.lastHearthCount;
-        heart = lastCount + extraHeart;
-        regenTimer = new Timer(Time.time - extraDur, tickPeriod );
-        Debug.Log($"You have {heart} hearts. Next heart is going to be gotten after {regenTimer.GetRemainingSecs()} seconds");
+    public void LostHeart()
+    {
+        if (IsHearthOver()) return;
+        heart.Decrease(1);
     }
+
+    public bool IsHearthOver() => heart == null || heart.value <= 0 ;
 
 
 
@@ -170,7 +211,7 @@ public class SaveLoader
     public SaveLoader(string filename)
     {
         FileName = filename;
-        FullPath = Path.Combine(Application.dataPath, FileName);
+        FullPath = Path.Combine(Application.persistentDataPath, FileName);
         Debug.Log($"Application path is on : {FullPath}");
 
     }
@@ -361,7 +402,7 @@ public class GameManager : MonoBehaviour
             Saving.NewProgress();
         }
         saveData = Saving.Load();
-        HController.Initialize(saveData);
+        HController.LoadHeart(saveData);
 
     }
 
@@ -377,6 +418,24 @@ public class GameManager : MonoBehaviour
             Saving.Save(data);
             saveData = data;
         }
+    }
+
+    public void SaveIfLost()
+    {
+        HController.LostHeart();
+        saveData.lastHearthCount = HController.heart.value;
+        saveData.hearthChangeTime = DateTime.Now;
+        Saving.Save(saveData);
+        
+    }
+
+
+    public void OnRewardedAdWatched()
+    {
+        HController.heart.Increase(1);
+        saveData.hearthChangeTime = DateTime.Now;
+        saveData.lastHearthCount = HController.heart.value;
+        Saving.Save(saveData);
     }
 
 

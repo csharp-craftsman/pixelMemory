@@ -43,6 +43,9 @@ public class PlayMenu : MonoBehaviour
     {
         if (isPlayerWon)
             GameManager.Instance.SaveIfNextLevelWon();
+
+        else
+            GameManager.Instance.SaveIfLost();
         
         GameManager.Instance.SLoader.LoadLevelSelectionScene();
 

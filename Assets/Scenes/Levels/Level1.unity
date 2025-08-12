@@ -1172,6 +1172,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FileName: 
+  HeartRegenPeriod: 0
+  soundEffects: []
+  BGMusics: []
 --- !u!4 &631219353
 Transform:
   m_ObjectHideFlags: 0

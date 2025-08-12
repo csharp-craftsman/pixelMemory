@@ -5,18 +5,35 @@ using UnityEngine;
 
 public class MainMenuController : MonoBehaviour
 {
+
+    Canvas watchAdCanvas;
+
+
     // Start is called before the first frame update
     void Start()
     {
         //test();
         GameManager.Instance.LoadGame();
         GameManager.Instance.Audio.PlayBGMusic("kennedy");
+        watchAdCanvas = GameObject.Find("WatchAdCanvas").GetComponent<Canvas>();
     }
 
 
     public void PlayGameButton()
     {
+        if (GameManager.Instance.HController.IsHearthOver())
+        {
+            watchAdCanvas.enabled = true;
+            return;
+        }
+
         GameManager.Instance.SLoader.LoadLevelSelectionScene();
+    }
+
+
+    public void CloseAdCanvas()
+    {
+        watchAdCanvas.enabled=false;
     }
 
     void test()
@@ -26,7 +43,7 @@ public class MainMenuController : MonoBehaviour
         DateTime before30 = DateTime.Now.AddMinutes(-30);
         Debug.Log(before30);
         data.hearthChangeTime = before30;
-        GameManager.Instance.HController.Initialize(data);
+        GameManager.Instance.HController.LoadHeart(data);
     }
 
 
