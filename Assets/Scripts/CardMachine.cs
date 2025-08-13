@@ -65,14 +65,14 @@ public class CardMachine : MonoBehaviour
 
     IEnumerator closeRoutine()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         current = CardMode.IDLE;
         Close();
     }
 
     IEnumerator matchRoutine()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         current = CardMode.MATCHED;
         this.gameObject.SetActive(false);
     }

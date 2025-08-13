@@ -19,6 +19,8 @@ public class AudioSystem
     AudioSource backgroundMusicSource;
     AudioSource soundEffectSource;
 
+    public float MusicVolume;
+    public float SFXVolume;
 
     public AudioSystem( List<AudioTuple> sfx , List<AudioTuple> bgm )
     {
@@ -67,6 +69,18 @@ public class AudioSystem
                 
         
     }
+
+
+    public void SetMusicVolume(float f){
+        MusicVolume = f;
+        backgroundMusicSource.volume = MusicVolume;
+    }
+
+    public void SetSFXVolume(float f) {
+        SFXVolume = f;
+        soundEffectSource.volume = SFXVolume;
+    }
+
 
 
     void playClip(AudioSource src , AudioClip clp)
@@ -146,6 +160,14 @@ public class HeartSystem
             regenTimer.Reset();
         }
 
+
+    }
+
+    public int GetRegenDuration(){
+        if (regenTimer == null)
+            return -1;
+
+        return (int)regenTimer.GetRemainingSecs();
 
     }
 
@@ -325,6 +347,12 @@ public class SceneLoader
             throw new System.Exception("WrongLevelNumber");
         loadScene(sceneIdx);
 
+    }
+
+
+    public void ReloadCurrentScene()
+    {
+        loadScene(SceneIdx);
     }
 
     public int CalculateLevelFromSceneIdx() => SceneIdx - LevelSelectionSceneIdx; 

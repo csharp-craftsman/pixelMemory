@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayMenu : MonoBehaviour
 {
@@ -15,11 +16,19 @@ public class PlayMenu : MonoBehaviour
     public TextMeshProUGUI losingDurText;
     public TextMeshProUGUI previewDurText;
 
+    Button retryButton;
+
     // Start is called before the first frame update
     void Start()
     {
         winCanvas = GameObject.Find("WinCanvas").GetComponent<Canvas>();
         loseCanvas = GameObject.Find("LoseCanvas").GetComponent <Canvas>();
+        retryButton = GameObject.Find("RetryButton").GetComponent<Button>();
+
+        // if heart 1 and player lost then player cant retry play the same level.
+        Heart h = GameManager.Instance.HController.heart;
+        if (h.value == 1)
+            retryButton.interactable = false;
 
         losingDurText.enabled = false;
     }
@@ -39,16 +48,26 @@ public class PlayMenu : MonoBehaviour
     }
 
 
-    public void GoToLevelSelection()
+    public void OnRetryClicked()
     {
-        if (isPlayerWon)
-            GameManager.Instance.SaveIfNextLevelWon();
-
-        else
-            GameManager.Instance.SaveIfLost();
+        GameManager.Instance.SaveIfLost();
+        GameManager.Instance.SLoader.ReloadCurrentScene();
         
-        GameManager.Instance.SLoader.LoadLevelSelectionScene();
+        
 
+    }
+
+
+    public void OnNextLevelClicked()
+    {
+        GameManager.Instance.SaveIfNextLevelWon();
+        GameManager.Instance.SLoader.LoadLevelPlayScene(GameManager.Instance.saveData.nextPlayableLevel);
+    }
+
+
+    public void GoToMainMenuScene()
+    {   
+        GameManager.Instance.SLoader.LoadMainMenuScene();
     }
 
     public void UpdateLosingDuration(float remainingSecs)

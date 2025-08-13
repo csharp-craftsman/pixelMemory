@@ -19,6 +19,9 @@ public class RewardedAds : MonoBehaviour , IUnityAdsInitializationListener , IUn
     [SerializeField] private bool testMode;
     [SerializeField] private string iosUnitID;
     [SerializeField] private string androidUnitID;
+
+
+    Canvas adCanvas;
     
     private void Awake()
     {
@@ -26,6 +29,8 @@ public class RewardedAds : MonoBehaviour , IUnityAdsInitializationListener , IUn
         adButton = GameObject.Find("AdButton").GetComponent<Button>();
         adButton.interactable = false;
         IsLoaded = false ;
+
+        adCanvas = GameObject.Find("WatchAdCanvas").GetComponent<Canvas>();
     }
 
 
@@ -112,6 +117,7 @@ public class RewardedAds : MonoBehaviour , IUnityAdsInitializationListener , IUn
             GameManager.Instance.OnRewardedAdWatched();
             Debug.Log("Reward has been received");
             IsLoaded = false;
+            adCanvas.enabled = false;
         }
         Debug.Log("What The Error is Going on ?");
 
